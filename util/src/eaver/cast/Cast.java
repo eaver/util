@@ -1244,17 +1244,17 @@ public class Cast {
     }
    
 	@SuppressWarnings("unchecked")
-	private final static <S,T> T object2object(Object obj,Class<? extends T> clazz,boolean ingoreCase,boolean reflectByMethodElseField,Castors<S,T> castors){
+	private final static <S,T> T object2object(Object obj,Class<? extends T> clazz,boolean ignoreCase,boolean reflectByMethodElseField,Castors<S,T> castors){
 		GetSet srcGetset = null;
 		T instance = null;
 		GetSetBean src = GetSetUtil.FM_CACHE.get(obj.getClass());
 		GetSetBean dst = GetSetUtil.FM_CACHE.get(clazz);
 		Map<String,GetSet> srcGetsets = reflectByMethodElseField?
-						ingoreCase?src.getLowerKeyGetMethods():src.getGetMethods():
-						ingoreCase?src.getLowerKeyFields():src.getGetSetFields();
+						ignoreCase?src.getLowerKeyGetMethods():src.getGetMethods():
+						ignoreCase?src.getLowerKeyFields():src.getGetSetFields();
 		Map<String,GetSet> dstGetsets = reflectByMethodElseField?
-						ingoreCase?dst.getLowerKeySetMethods():dst.getSetMethods():
-						ingoreCase?dst.getLowerKeyFields():dst.getGetSetFields();
+						ignoreCase?dst.getLowerKeySetMethods():dst.getSetMethods():
+						ignoreCase?dst.getLowerKeyFields():dst.getGetSetFields();
 		try {
 			instance = (T)Cast.newInstance(clazz);
 			for(String fieldName:dstGetsets.keySet()){
@@ -1275,13 +1275,13 @@ public class Cast {
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private final static <S,T> T object2Map(Object obj,Class<? extends T> clazz,boolean ingoreCase,boolean useMethodElseField,Castors<S,T> castors){
+	private final static <S,T> T object2Map(Object obj,Class<? extends T> clazz,boolean ignoreCase,boolean useMethodElseField,Castors<S,T> castors){
 		Object value = null;
 		Map instance = null; 
 		GetSetBean src = GetSetUtil.FM_CACHE.get(obj.getClass());
 		Map<String,GetSet> getsets = useMethodElseField?
-						ingoreCase?src.getLowerKeyGetMethods():src.getGetMethods():
-						ingoreCase?src.getLowerKeyFields():src.getGetSetFields();
+						ignoreCase?src.getLowerKeyGetMethods():src.getGetMethods():
+						ignoreCase?src.getLowerKeyFields():src.getGetSetFields();
 		try {
 			instance = (Map)Cast.newInstance(clazz);
 			for(String fieldName:getsets.keySet()){
@@ -1300,13 +1300,13 @@ public class Cast {
 	}
 	  
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private final static <S,T> T map2Object(Map data,Class<? extends T> clazz,boolean ingoreCase,boolean useMethodOrField,Castors<S,T> castors){
+	private final static <S,T> T map2Object(Map data,Class<? extends T> clazz,boolean ignoreCase,boolean useMethodOrField,Castors<S,T> castors){
 		Object instance = null;
 		GetSetBean dst = GetSetUtil.FM_CACHE.get(clazz);
 		Map<String,GetSet> getsets = useMethodOrField?
-					ingoreCase?dst.getLowerKeySetMethods():dst.getSetMethods():
-					ingoreCase?dst.getLowerKeyFields():dst.getGetSetFields();
-		data = ingoreCase?lowerKeys(data):data;
+					ignoreCase?dst.getLowerKeySetMethods():dst.getSetMethods():
+					ignoreCase?dst.getLowerKeyFields():dst.getGetSetFields();
+		data = ignoreCase?lowerKeys(data):data;
 		try {
 			instance = Cast.newInstance(clazz);
 			for(String fieldName:getsets.keySet())
