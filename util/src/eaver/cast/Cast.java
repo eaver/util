@@ -91,7 +91,6 @@ public class Cast {
 			return null;
 		if(clazz == null)
 			return (T)obj;
-		//这个应该是最常用的类型 , 放第一位
 		if(clazz == String.class)
             return (T)toString(obj);
 		//some typical class
