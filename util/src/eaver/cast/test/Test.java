@@ -42,7 +42,13 @@ public class Test {
 		System.out.println(user1);
 		System.out.println(user2);
 		System.out.println(user3);
-		  
+		
+		
+		int[][] src = new int[][]{{1,2},{3,4}};
+		int[][] dest = new int[][]{{11,22},{33,44}};
+		System.arraycopy(src, 0, dest, 0, 2);
+		System.out.println(dest[0][0]);
+		System.out.println(src[0].getClass().getComponentType().isPrimitive());
 	}
 	
 	private final static User createUser(){

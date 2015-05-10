@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2015-2025 by eaver Some rights reserved
+ */
 package eaver.cast;
 
 import java.lang.reflect.InvocationTargetException;

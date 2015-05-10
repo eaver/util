@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2015-2025 by eaver Some rights reserved
+ */
 package eaver.cast;
  
 import java.lang.reflect.Array;
@@ -16,21 +19,21 @@ public class GetSetUtil {
 
 	
 	/**
-	 * read property from a Object
+	 * read Object's property value
 	 * 	Object support
 	 * 		Map and POJO
 	 * 		Collection which items are Map and POJO
 	 * 		Array	which items are Map and POJO
 	 * 	while Object is a Collection or Array,it will return the same type(Collection or Array) object which property values are already in it
-	 * @param obj			Object's instance
+	 * @param instance	Object's instance
 	 * @param property	Object's property name
 	 * @return
 	 */
-	public final static Object get(Object obj,String property){
-		if(obj == null || property == null)
+	public final static Object get(Object instance,String property){
+		if(instance == null || property == null)
 			return null;
-		if(obj instanceof Collection) {
-            Collection<?> coll = (Collection<?>)obj;
+		if(instance instanceof Collection) {
+            Collection<?> coll = (Collection<?>)instance;
             Iterator<?> iterator =coll.iterator();
             List<Object> rs = new ArrayList<Object>();
             Object item = null;
@@ -40,16 +43,16 @@ public class GetSetUtil {
             }
             return rs;
         }
-		if(obj instanceof Object[]){
-            Object[] arr = (Object[])obj;
+		if(instance instanceof Object[]){
+            Object[] arr = (Object[])instance;
             Object[] rs = new Object[arr.length];
             for(int i=0;i<arr.length;i++)
                 rs[i] = arr[i]!=null?readObjectProperty(arr[i],property):null;
             return rs;
         }
-		if(obj.getClass().isArray())
-			throw new GetSetException("unsupport read "+property+" in "+obj.getClass().getName());
-		return readObjectProperty(obj, property);
+		if(instance.getClass().isArray())
+			throw new GetSetException("unsupport read "+property+" in "+instance.getClass().getName());
+		return readObjectProperty(instance, property);
 	
 	}
 	
@@ -59,15 +62,15 @@ public class GetSetUtil {
 	 * 		Map and POJO
 	 * 		Collection which items are Map and POJO
 	 * 		Array	which items are Map and POJO
-	 * @param obj			Object's instance
+	 * @param instance	Object's instance
 	 * @param property	property name
 	 * @param value		property's new value
 	 */
-	public final static void set(Object obj,String property,Object value){
-		if(obj == null || property == null)
+	public final static void set(Object instance,String property,Object value){
+		if(instance == null || property == null)
 			return;
-		if(obj instanceof Collection){
-            Collection<?> coll = (Collection<?>)obj;
+		if(instance instanceof Collection){
+            Collection<?> coll = (Collection<?>)instance;
             Iterator<?> iterator =coll.iterator();
             Object item = null;
             while(iterator.hasNext()) {
@@ -76,52 +79,64 @@ public class GetSetUtil {
                     writeObjectProperty(item,property,value);
             }
 
-		}else if(obj instanceof Object[]){
-            for(Object item:(Object[])obj)
+		}else if(instance instanceof Object[]){
+            for(Object item:(Object[])instance)
                 if(item!=null)
                     writeObjectProperty(item,property,value);
-		}else if(obj.getClass().isArray()){ 
-				throw new GetSetException("unsupport write "+property+" in "+obj.getClass().getName());
+		}else if(instance.getClass().isArray()){ 
+				throw new GetSetException("unsupport write "+property+" in "+instance.getClass().getName());
 		}else{
-			writeObjectProperty(obj, property,value);
+			writeObjectProperty(instance, property,value);
 		} 
 	}
 	
-	public final static Object getItem(Object obj,int index){
-		if(obj == null||index<0)
+	/**
+	 * read Collection/Array 's item value
+	 * @param instance
+	 * @param index
+	 * @return
+	 */
+	public final static Object getItem(Object instance,int index){
+		if(instance == null||index<0)
 			return null;
-		if(obj instanceof List){
-			List<?> list = (List<?>)obj; 
+		if(instance instanceof List){
+			List<?> list = (List<?>)instance; 
 			return index<list.size()?list.get(index):null;
-		}else if(obj instanceof Object[]){
-			Object[] arr = (Object[])obj;
+		}else if(instance instanceof Object[]){
+			Object[] arr = (Object[])instance;
 			return index<arr.length?arr[index]:null; 
-		}else if(obj.getClass().isArray()){
-			int length = Array.getLength(obj);
-			return index<length?Array.get(obj, index):null; 
+		}else if(instance.getClass().isArray()){
+			int length = Array.getLength(instance);
+			return index<length?Array.get(instance, index):null; 
 		}else{
-			throw new RuntimeException("getItem unsupport collection or array type:"+obj.getClass().getName());
+			throw new RuntimeException("unsupport type:"+instance.getClass().getName()+",only collection and array supported.");
 		}
 	}
 	
+	/**
+	 * write(update) Collection/Array 's item value
+	 * @param instance
+	 * @param index
+	 * @param value
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final static void setItem(Object obj,int index,Object value){
-		if(obj == null||index<0)
+	public final static void setItem(Object instance,int index,Object value){
+		if(instance == null||index<0)
 			return;
-		if(obj instanceof List){
-			List list = (List)obj; 
+		if(instance instanceof List){
+			List list = (List)instance; 
 			if(index<list.size())
 				list.set(index, value); 
-		}else if(obj instanceof Object[]){
-			Object[] arr = (Object[])obj;
+		}else if(instance instanceof Object[]){
+			Object[] arr = (Object[])instance;
 			if(index<arr.length)
 				arr[index] = value;
-		}else if(obj.getClass().isArray()){
-			int length = Array.getLength(obj);
+		}else if(instance.getClass().isArray()){
+			int length = Array.getLength(instance);
 			if(index<length)
-				Array.set(obj, index,Cast.cast(value,obj.getClass().getComponentType()));
+				Array.set(instance, index,Cast.cast(value,instance.getClass().getComponentType()));
 		}else{
-			throw new RuntimeException("writeItem unsupport collection or array type:"+obj.getClass().getName());
+			throw new GetSetException("unsupport type:"+instance.getClass().getName()+",only collection and array supported.");
 		}
 	} 
 	
@@ -136,7 +151,7 @@ public class GetSetUtil {
 		try {
 			return field!=null?field.get(obj):null;
 		} catch (Throwable e) {
-			throw new RuntimeException("GetSetException get:"+e.getMessage(),e);
+			throw new GetSetException(e.getMessage(),e);
 		}
 	}
 	
@@ -154,7 +169,7 @@ public class GetSetUtil {
 		try {
 			field.setAndCast(obj,value);
 		} catch (Throwable e) {
-			throw new RuntimeException("GetSetException set:"+e.getMessage(),e);
+			throw new GetSetException(e.getMessage(),e);
 		}
 		 
 	}

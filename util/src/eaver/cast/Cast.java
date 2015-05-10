@@ -1,5 +1,8 @@
+/*
+ * Copyright (c) 2015-2025 by eaver Some rights reserved
+ */
 package eaver.cast;
- 
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -54,14 +57,13 @@ import java.util.concurrent.SynchronousQueue;
 
 /**
  * data cast util
+ * just call cast(Object src,Class<T> targetType) can do anything
  * support three type
- * 	1 primitive and it's object type
- * 2 object(pojo/map) type
- * 3 array and collection type
- *     
- *   public static <T> T cast(Object obj,Class<? extends T> clazz)
- *   
- *   attention:
+ * 	1 Primitive and it's derive type
+ * 2 Object(POJO/Map) type
+ * 3 Array(Object[],Primitive Array,Multidimensional Array) and collection(except Map) type
+ * 
+ * Attention:
  *    1. boolean -> Number , true -> 1,false -> 0
  *    2. Number -> boolean , 0->false, otherwise -> 1
  *    3. String - > boolean , str.length() == 1 ? return str.charAt(0) != '0':"true".equalsIgnoreCase(str)
@@ -81,6 +83,13 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class Cast {
 	
+	/**
+	 * cast obj to clazz type
+	 * @param obj		src data
+	 * @param clazz	any type which  you wanted
+	 * @return clazz's instance
+	 * @throws CastException
+	 */
 	public final static <T> T cast(Object obj,Class<? extends T> clazz){
 		return cast(obj, clazz, null);
 	}
@@ -113,7 +122,7 @@ public class Cast {
             return (T)toFloat(obj);
         if(clazz == Boolean.class || clazz == boolean.class)
             return (T)toBoolean(obj);
-      
+        //if you have a lot of toMap cast
         if(clazz == Map.class || clazz == HashMap.class){
         	if(obj instanceof Map){
         		return (T)map2map(obj, clazz, castors);
@@ -1002,35 +1011,60 @@ public class Cast {
 	}
  
 
+	/**
+	 * extend arraycopy of System.arraycopy
+	 * src and dest can be different Array type
+	 * @param src
+	 * @param srcPos
+	 * @param dest
+	 * @param destPos
+	 * @param length
+	 */
 	public final static void arraycopy(Object src,int srcPos,Object dest,int destPos,int length){
 		arraycopy(src, srcPos, dest, destPos, length, null);
 	}
 	
-	public final static <S,T>  void arraycopy(Object src,int srcPos,Object dest,int destPos,int length,Castors<S,T> castors){
+	/**
+	 * extend arraycopy of System.arraycopy
+	 * src and dest can be different Array type
+	 * 
+	*  dest's copied data are all new instance,not refer src's data.
+	 * @param src
+	 * @param srcPos
+	 * @param dest
+	 * @param destPos
+	 * @param length
+	 * @param castors
+	 */
+	public final static <S,T> void arraycopy(Object src,int srcPos,Object dest,int destPos,int length,Castors<S,T> castors){
 		if(src == null || dest  == null)
-			throw new NullPointerException((src == null?"src":"target")+" is null");
+			throw new NullPointerException((src == null?"src":"dest")+" is null");
 		if(length<=0)
-			throw new RuntimeException("length is "+length);
-		if(!src.getClass().isArray())
+			return;
+		Class<?> srcType = src.getClass();
+		Class<?> destType = dest.getClass();
+		if(!srcType.isArray())
 			throw new RuntimeException("src is not array type");
-		if(!dest.getClass().isArray())
+		if(!destType.isArray())
 			throw new RuntimeException("dest is not array type");
 		/**
-		 * 类型相同 , 则调用jvm自带的数组复制方法
-		 * 当有自定义的转换配置时除外
+		 * use System.arraycopy
+		 * use srcType.getComponentType().isPrimitive() condition : make sure dest's data is not refer to src's data
 		 */
-		if(castors==null && src.getClass() == dest.getClass()){ 
+		if(castors==null && srcType == destType && srcType.getComponentType().isPrimitive() ){ 
 			System.arraycopy(src, srcPos, dest, destPos, length);
 			return;
 		}
 		int srcLength = Array.getLength(src);
 		int destLength = Array.getLength(dest);
+		if(srcLength == 0 || destLength == 0)
+			return ;
 		if(srcPos<0||srcPos>=srcLength)
-			throw new IndexOutOfBoundsException(srcPos+"");
+			throw new IndexOutOfBoundsException("srcPos:"+srcPos+",limit 0~"+(srcLength-1));
 		if(srcPos+length > srcLength)
 			throw new IndexOutOfBoundsException("src "+(srcPos+length-1));
 		if(destPos<0||destPos>=destLength)
-			throw new IndexOutOfBoundsException(destPos+"");
+			throw new IndexOutOfBoundsException("destPos:"+destPos+",limit 0~"+(destLength-1));
 		if(destPos+length >destLength)
 			throw new IndexOutOfBoundsException("target "+(destPos+length-1));
 		

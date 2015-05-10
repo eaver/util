@@ -1,9 +1,9 @@
-package eaver.cast;
-/**
- * 
- * @author eaver
- *
+/*
+ * Copyright (c) 2015-2025 by eaver Some rights reserved
  */
+
+package eaver.cast;
+
 public class CastException extends RuntimeException{
  
 	private static final long serialVersionUID = 1L;
